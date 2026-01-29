@@ -11,7 +11,6 @@ import { Contracts } from './pages/Contracts';
 import { Integrations } from './pages/Integrations';
 import { Training } from './pages/Training';
 import { News } from './pages/News';
-import { TeamManagement } from './pages/TeamManagement';
 import { ReferralProgram } from './pages/ReferralProgram';
 import { Accelerator } from './pages/Accelerator';
 import { Property, Campaign, User, UserRole, AdCreationContext, CompetitorAnalysis } from './types';
@@ -45,57 +44,18 @@ const MOCK_PROPERTIES: Property[] = [
     features: ['Piscina', 'Academia', 'Portaria 24h', 'Varanda Gourmet'],
     isPremium: true,
     integrations: ['zap', 'quintoandar']
-  },
-  {
-    id: 'p2',
-    title: 'Casa de Temporada em Ilhabela',
-    description: 'Casa pé na areia com piscina e churrasqueira para famílias.',
-    price: 1500,
-    period: 'diária',
-    location: 'Ilhabela, SP',
-    type: 'Casa',
-    listingType: 'vacation',
-    bedrooms: 4,
-    bathrooms: 5,
-    area: 320,
-    imageUrl: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    features: ['Piscina', 'Wi-Fi', 'Ar Condicionado', 'Vista Mar'],
-    integrations: ['airbnb', 'booking']
   }
 ];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(MOCK_BROKER_USER);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [adCreationContext, setAdCreationContext] = useState<AdCreationContext | undefined>(undefined);
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem('superbroker_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    } else {
-       handleLogin(MOCK_BROKER_USER);
-    }
-  }, []);
-
-  const handleLogin = (selectedUser: User) => {
-    setUser(selectedUser);
-    localStorage.setItem('superbroker_user', JSON.stringify(selectedUser));
-    setActiveTab('home');
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('superbroker_user');
-    setUser(null);
-    setActiveTab('home');
-  };
-
   const handleUpdateCredits = (amount: number) => {
     if (!user) return;
-    const updatedUser = { ...user, credits: user.credits + amount };
-    setUser(updatedUser);
-    localStorage.setItem('superbroker_user', JSON.stringify(updatedUser));
+    setUser({ ...user, credits: user.credits + amount });
   };
 
   const handleCounterCampaign = (analysis: CompetitorAnalysis) => {
@@ -103,83 +63,25 @@ export default function App() {
     setActiveTab('superads');
   };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6">
-        <button onClick={() => handleLogin(MOCK_BROKER_USER)} className="bg-indigo-600 hover:bg-indigo-700 text-white p-10 rounded-3xl font-bold shadow-2xl transition-all hover:scale-105">
-           Acessar SuperBroker IA
-        </button>
-      </div>
-    );
-  }
-
   return (
     <Layout 
       activeTab={activeTab} 
       onTabChange={setActiveTab} 
-      onLogout={handleLogout}
-      user={user}
+      onLogout={() => setUser(null)}
+      user={user || MOCK_BROKER_USER}
     >
-      {activeTab === 'home' && (
-        <Home properties={MOCK_PROPERTIES} onBoost={(p) => setActiveTab('superads')} />
-      )}
-      
-      {activeTab === 'accelerator' && (
-        <Accelerator properties={MOCK_PROPERTIES} user={user} />
-      )}
-
-      {activeTab === 'dashboard' && (
-        <Dashboard campaigns={campaigns} properties={MOCK_PROPERTIES} />
-      )}
-      
-      {activeTab === 'financial' && (
-        <Financial user={user} onUpdateCredits={handleUpdateCredits} />
-      )}
-
-      {activeTab === 'integrations' && (
-        <Integrations />
-      )}
-
-      {activeTab === 'contracts' && (
-        <Contracts properties={MOCK_PROPERTIES} user={user} />
-      )}
-      
-      {activeTab === 'superads' && (
-        <AdCreator 
-          properties={MOCK_PROPERTIES} 
-          creationContext={adCreationContext}
-          onCampaignCreated={(c) => {
-            setCampaigns([c, ...campaigns]);
-            handleUpdateCredits(-c.budget);
-            setAdCreationContext(undefined);
-          }}
-          onCancel={() => {
-            setAdCreationContext(undefined);
-            setActiveTab('home');
-          }}
-          user={user}
-        />
-      )}
-
-      {activeTab === 'spy' && (
-        <MarketSpy onGenerateCounterCampaign={handleCounterCampaign} />
-      )}
-
-      {activeTab === 'referral' && (
-        <ReferralProgram user={user} properties={MOCK_PROPERTIES} />
-      )}
-      
-      {activeTab === 'training' && (
-        <Training user={user} />
-      )}
-      
-      {activeTab === 'news' && (
-        <News user={user} />
-      )}
-
-      {activeTab === 'chat' && (
-        <Chat />
-      )}
+      {activeTab === 'home' && <Home properties={MOCK_PROPERTIES} onBoost={() => setActiveTab('superads')} />}
+      {activeTab === 'accelerator' && <Accelerator properties={MOCK_PROPERTIES} user={user || MOCK_BROKER_USER} />}
+      {activeTab === 'dashboard' && <Dashboard campaigns={campaigns} properties={MOCK_PROPERTIES} />}
+      {activeTab === 'financial' && <Financial user={user || MOCK_BROKER_USER} onUpdateCredits={handleUpdateCredits} />}
+      {activeTab === 'integrations' && <Integrations />}
+      {activeTab === 'contracts' && <Contracts properties={MOCK_PROPERTIES} user={user || MOCK_BROKER_USER} />}
+      {activeTab === 'superads' && <AdCreator properties={MOCK_PROPERTIES} user={user || MOCK_BROKER_USER} onCampaignCreated={(c) => setCampaigns([c, ...campaigns])} onCancel={() => setActiveTab('home')} />}
+      {activeTab === 'spy' && <MarketSpy onGenerateCounterCampaign={handleCounterCampaign} />}
+      {activeTab === 'referral' && <ReferralProgram user={user || MOCK_BROKER_USER} properties={MOCK_PROPERTIES} />}
+      {activeTab === 'training' && <Training user={user || MOCK_BROKER_USER} />}
+      {activeTab === 'news' && <News user={user || MOCK_BROKER_USER} />}
+      {activeTab === 'chat' && <Chat />}
     </Layout>
   );
 }
