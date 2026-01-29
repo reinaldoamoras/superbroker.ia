@@ -1,0 +1,7 @@
+{
+  "name": "SuperBroker IA",
+  "description": "SuperApp Imobiliário: Venda, Aluguel e Temporada. Integrado com Airbnb/Booking e com Inteligência de Mercado (Espião) para análise de concorrentes.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
