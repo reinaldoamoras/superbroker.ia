@@ -11,6 +11,7 @@ import { Contracts } from './pages/Contracts';
 import { Integrations } from './pages/Integrations';
 import { Training } from './pages/Training';
 import { News } from './pages/News';
+import { TeamManagement } from './pages/TeamManagement';
 import { ReferralProgram } from './pages/ReferralProgram';
 import { Accelerator } from './pages/Accelerator';
 import { Property, Campaign, User, UserRole, AdCreationContext, CompetitorAnalysis } from './types';
@@ -79,6 +80,7 @@ export default function App() {
       {activeTab === 'superads' && <AdCreator properties={MOCK_PROPERTIES} user={user || MOCK_BROKER_USER} onCampaignCreated={(c) => setCampaigns([c, ...campaigns])} onCancel={() => setActiveTab('home')} />}
       {activeTab === 'spy' && <MarketSpy onGenerateCounterCampaign={handleCounterCampaign} />}
       {activeTab === 'referral' && <ReferralProgram user={user || MOCK_BROKER_USER} properties={MOCK_PROPERTIES} />}
+      {activeTab === 'team' && <TeamManagement user={user || MOCK_BROKER_USER} />}
       {activeTab === 'training' && <Training user={user || MOCK_BROKER_USER} />}
       {activeTab === 'news' && <News user={user || MOCK_BROKER_USER} />}
       {activeTab === 'chat' && <Chat />}
